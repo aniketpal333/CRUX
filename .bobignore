@@ -1,6 +1,5 @@
 ﻿.cruxvenv/
 __pycache__/
-out/
 *.joblib
 *.pkl
 node_modules/
