@@ -1,0 +1,19 @@
+"""Parity test for the Adult Income service."""
+import pandas as pd
+import joblib
+
+DATA_PATH = "data/adult.csv"
+MODEL_PATH = "models/{{ model_name }}"
+
+
+def test_model_loads():
+    model = joblib.load(MODEL_PATH)
+    assert model is not None
+
+
+def test_model_predicts_on_sample():
+    model = joblib.load(MODEL_PATH)
+    df = pd.read_csv(DATA_PATH).dropna().head(10)
+    X = df.drop("income", axis=1)
+    preds = model.predict(X)
+    assert len(preds) == 10
