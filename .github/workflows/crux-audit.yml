@@ -1,0 +1,40 @@
+name: CRUX Audit Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install CRUX
+        run: pip install -e .
+
+      - name: Run CRUX audit on samples/02_messy.ipynb
+        id: audit
+        run: crux audit samples/02_messy.ipynb --strict
+        continue-on-error: true
+
+      - name: Upload dossier artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crux-dossier-${{ github.sha }}
+          path: out/
+
+      - name: Block merge if blockers
+        if: steps.audit.outcome == 'failure'
+        run: |
+          echo "::error::CRUX detected blocker-level production gaps. Merge blocked."
+          echo "::notice::Download the 'crux-dossier' artifact above."
+          exit 1
