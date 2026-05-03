@@ -1,5 +1,5 @@
 """Top-level audit pipeline: classify, detect, build AuditResult."""
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import Counter
 
 from .classifier import classify_notebook
@@ -41,7 +41,7 @@ def audit_notebook(nb_path: str) -> AuditResult:
 
     return AuditResult(
         notebook_name=nb_path.split("/")[-1].split("\\")[-1],
-        audit_timestamp=datetime.utcnow().isoformat() + "Z",
+        audit_timestamp=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         verdict=verdict,
         cells=cell_counts,
         gaps=gap_counts,
